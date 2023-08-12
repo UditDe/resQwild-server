@@ -27,9 +27,11 @@ app.use(
 
 //import all routes here
 const user = require("./routes/user.routes");
+const report = require("./routes/report.routes");
 
 //router middleware
 app.use("/api", user);
+app.use("/api", report);
 
 app.get("/", (req, res) => {
 	res.status(200).json({
