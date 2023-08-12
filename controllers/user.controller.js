@@ -75,28 +75,29 @@ exports.getUserData = BigPromise(async (req, res, next) => {
 });
 
 exports.addresqers = BigPromise(async (req, res, next) => {
-	const { name, email, password, phoneNumber, role } = req.body;
+	const { name, email, password, phoneNumber } = req.body;
 	// if (!email || !password || !name || !phoneNumber || !role) {
 	// 	return next(new CustomError("All fields are required", 400));
 	// }
 	const user = await User.findById(req.user.id);
 	//createing the user
-	// const resQer = await User.create({
-	// 	name,
-	// 	email,
-	// 	password,
-	// 	role,
-	// 	orgName : user
-	// });
+	const resQer = await User.create({
+		name,
+		email,
+		password,
+		role: "rescuer",
+		orgName: user.orgName,
+	});
 
-	// res.status(200).json({
-	// 	success: true,
-	// 	message: "ResQer created",
-	// 	user : resQer,
-	// });
+	res.status(200).json({
+		success: true,
+		message: "ResQer created",
+		user: resQer,
+	});
 
-	res.json({
-		user,
+	res.status(200).json({
+		success: true,
+		resQer,
 	});
 });
 

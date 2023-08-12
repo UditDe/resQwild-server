@@ -25,11 +25,11 @@ exports.getAllreport = BigPromise(async (req, res, next) => {
 });
 
 exports.addReport = BigPromise(async (req, res, next) => {
-	const product = await Report.create(req.body);
+	const reports = await Report.create(req.body);
 
 	res.status(201).json({
 		success: true,
 		message: "Report added successfully",
-		product,
+		reports,
 	});
 });
