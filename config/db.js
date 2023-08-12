@@ -10,6 +10,7 @@ const connectWithDb = () => {
 		})
 		.then(console.log("DB Connected!!"))
 		.catch((err) => {
+			console.log(process.env.DB_URL);
 			console.log(`DB Connection issues => \n ${err}`);
 			process.exit(1);
 		});
