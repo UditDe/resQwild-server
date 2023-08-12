@@ -12,9 +12,9 @@ exports.signup = BigPromise(async (req, res, next) => {
 	// if (!req.files) {
 	// 	return next(new CustomError("Photo is required for sign up", 400));
 	// }
-	const { email, password } = req.body;
-	console.log(req.body);
-	if (!email || !password) {
+	const { name, email, password } = req.body;
+	// console.log(req.body);
+	if (!email || !password || !name) {
 		return next(new CustomError("email, password are required", 400));
 	}
 
@@ -27,6 +27,7 @@ exports.signup = BigPromise(async (req, res, next) => {
 
 	//createing the user
 	const user = await User.create({
+		name,
 		email,
 		password,
 	});
@@ -62,244 +63,58 @@ exports.login = BigPromise(async (req, res, next) => {
 	cookieToken(user, res);
 });
 
-// exports.logout = BigPromise(async (req, res, next) => {
-// 	res.cookie("token", null, {
-// 		expires: new Date(Date.now()),
-// 		httpOnly: true,
-// 	});
+exports.getUserData = BigPromise(async (req, res, next) => {
+	// getting the user from Db
+	// the user.id is injected by the middleware which we have used in the routes
+	const user = await User.findById(req.user.id);
+	// sending a json response
+	res.status(200).json({
+		success: true,
+		user,
+	});
+});
 
-// 	res.status(200).json({
-// 		success: true,
-// 		message: "Logout success",
-// 	});
-// });
+exports.addresqers = BigPromise(async (req, res, next) => {
+	const { name, email, password, phoneNumber, role } = req.body;
+	// if (!email || !password || !name || !phoneNumber || !role) {
+	// 	return next(new CustomError("All fields are required", 400));
+	// }
+	const user = await User.findById(req.user.id);
+	//createing the user
+	// const resQer = await User.create({
+	// 	name,
+	// 	email,
+	// 	password,
+	// 	role,
+	// 	orgName : user
+	// });
 
-// exports.forgotPassword = BigPromise(async (req, res, next) => {
-// 	const { email } = req.body;
-// 	// finding the user in the database
-// 	const user = await User.findOne({ email });
-// 	// if the user is not present
-// 	if (!user) {
-// 		return next(new CustomError("Email not found as registered", 400));
-// 	}
-// 	// if the user is present then create token
-// 	const forgotToken = user.getForgotPasswordToken();
-// 	// save the token
-// 	await user.save({ validateBeforeSave: false });
-// 	// creating the url that will be send to user
-// 	const myUrl = `${req.protocol}://${req.get(
-// 		"host"
-// 	)}/password/reset/${forgotToken}`;
-// 	// custome msg that will be send to user in the email
-// 	const message = `Copy paste this link in your URL and Hit enter \n\n ${myUrl}`;
-// 	// using mailhelper utility function
-// 	try {
-// 		await mailHelper({
-// 			email: user.email,
-// 			subject: "LCO TStore - Password reset email",
-// 			message,
-// 		});
+	// res.status(200).json({
+	// 	success: true,
+	// 	message: "ResQer created",
+	// 	user : resQer,
+	// });
 
-// 		res.status(200).json({
-// 			success: true,
-// 			message: "Email sent successfully",
-// 		});
-// 	} catch (err) {
-// 		// if something goes wrong then flused out the token from the Db
-// 		user.forgotPasswordToken = undefined;
-// 		user.forgotPasswordExpiry = undefined;
-// 		user.save({ validateBeforeSave: false });
+	res.json({
+		user,
+	});
+});
 
-// 		return next(new CustomError(err.message, 500));
-// 	}
-// });
+exports.orgRegistration = BigPromise(async (req, res, next) => {
+	const { orgName, orgLocation, phoneNumber, email, password } = req.body;
+	console.log(req.body);
+	if (!email || !password || !orgName || !orgLocation || !phoneNumber) {
+		return next(new CustomError("All fields are required", 400));
+	}
 
-// exports.passwordReset = BigPromise(async (req, res, next) => {
-// 	const token = req.params.token;
+	const user = await User.create({
+		orgName,
+		orgLocation,
+		phoneNumber,
+		email,
+		password,
+		role: "org",
+	});
 
-// 	const encryptedToken = crypto
-// 		.createHash("sha256")
-// 		.update(token)
-// 		.digest("hex");
-
-// 	const user = await User.findOne({
-// 		encryptedToken,
-// 		forgotPasswordExpiry: { $gt: Date.now() },
-// 	});
-
-// 	if (!user) {
-// 		return next(new CustomError("Token is invalid or expired", 400));
-// 	}
-
-// 	if (req.body.password !== req.body.confirmPassword) {
-// 		return next(new CustomError("password and confirmpassword doesn't match"));
-// 	}
-
-// 	user.password = req.body.password;
-// 	user.forgotPasswordToken = undefined;
-// 	user.forgotPasswordExpiry = undefined;
-
-// 	await user.save();
-
-// 	// send a json resp Or send Token
-// 	cookieToken(user, res);
-// });
-
-// exports.getLoggedInUserDetails = BigPromise(async (req, res, next) => {
-// 	// getting the user from Db
-// 	// the user.id is injected by the middleware which we have used in the routes
-// 	const user = await User.findById(req.user.id);
-// 	// sending a json response
-// 	res.status(200).json({
-// 		success: true,
-// 		user,
-// 	});
-// });
-
-// exports.changePassword = BigPromise(async (req, res, next) => {
-// 	const userId = req.user.id;
-
-// 	const user = await User.findById(userId).select("+password");
-
-// 	const isCorrectOldPassword = await user.isValidatedPassword(
-// 		req.body.oldPassword
-// 	);
-
-// 	if (!isCorrectOldPassword) {
-// 		return next(new CustomError("old password is incorrect", 400));
-// 	}
-
-// 	user.password = req.body.password;
-// 	await user.save();
-
-// 	cookieToken(user, res);
-// });
-
-// exports.updateUserDetails = BigPromise(async (req, res, next) => {
-// 	const newData = {
-// 		email: req.body.email,
-// 	};
-
-// 	if (req.files) {
-// 		// finding the user from Db
-// 		const user = await User.findById(req.user.id);
-// 		// getting the image Id
-// 		const imageId = user.photo.id;
-// 		//delete photo on cloudinary
-// 		const resp = await cloudinary.v2.uploader.destroy(imageId);
-// 		// upload the new photo
-// 		const result = await cloudinary.v2.uploader.upload(
-// 			req.files.photo.tempFilePath,
-// 			{
-// 				folder: "users",
-// 				width: 150,
-// 				crop: "scale",
-// 			}
-// 		);
-// 		newData.photo = {
-// 			id: result.public_id,
-// 			secure_url: result.secure_url,
-// 		};
-// 	}
-
-// 	const user = await User.findByIdAndUpdate(req.user.id, newData, {
-// 		new: true,
-// 		runValidators: true,
-// 		useFindAndModify: false,
-// 	});
-
-// 	res.status(200).json({
-// 		success: true,
-// 		user,
-// 	});
-// });
-
-// // admin only route
-// exports.adminAllUsers = BigPromise(async (req, res, next) => {
-// 	const users = await User.find();
-
-// 	res.status(200).json({
-// 		success: true,
-// 		users,
-// 	});
-// });
-
-// exports.adminGetSingleUser = BigPromise(async (req, res, next) => {
-// 	const user = await User.findById(req.params.id);
-
-// 	if (!user) {
-// 		next(new CustomError("No user found", 400));
-// 	}
-
-// 	res.status(200).json({
-// 		success: true,
-// 		user,
-// 	});
-// });
-
-// exports.adminUpdateSingleUser = BigPromise(async (req, res, next) => {
-// 	const newData = {
-// 		name: req.body.name,
-// 		email: req.body.email,
-// 		role: req.body.role,
-// 	};
-
-// 	// if (req.files) {
-// 	// 	// finding the user from Db
-// 	// 	const user = await User.findById(req.user.id);
-// 	// 	// getting the image Id
-// 	// 	const imageId = user.photo.id;
-// 	// 	//delete photo on cloudinary
-// 	// 	const resp = await cloudinary.v2.uploader.destroy(imageId);
-// 	// 	// upload the new photo
-// 	// 	const result = await cloudinary.v2.uploader.upload(
-// 	// 		req.files.photo.tempFilePath,
-// 	// 		{
-// 	// 			folder: "users",
-// 	// 			width: 150,
-// 	// 			crop: "scale",
-// 	// 		}
-// 	// 	);
-// 	// 	newData.photo = {
-// 	// 		id: result.public_id,
-// 	// 		secure_url: result.secure_url,
-// 	// 	};
-// 	// }
-
-// 	const user = await User.findByIdAndUpdate(req.params.id, newData, {
-// 		new: true,
-// 		runValidators: true,
-// 		useFindAndModify: false,
-// 	});
-
-// 	res.status(200).json({
-// 		success: true,
-// 		user,
-// 	});
-// });
-
-// exports.adminDeleteSingleUser = BigPromise(async (req, res, next) => {
-// 	const user = await User.findById(req.params.id);
-
-// 	if (!user) {
-// 		return next(new CustomError("No user found", 401));
-// 	}
-
-// 	const imageId = user.photo.id;
-// 	await cloudinary.v2.uploader.destroy(imageId);
-
-// 	await user.remove();
-// 	res.status(200).json({
-// 		success: true,
-// 		message: "User deleted successfully",
-// 	});
-// });
-
-// // manager only route
-// exports.managerAllUser = BigPromise(async (req, res, next) => {
-// 	const user = await User.find({ role: "user" });
-// 	res.status(200).json({
-// 		success: true,
-// 		user,
-// 	});
-// });
+	cookieToken(user, res);
+});

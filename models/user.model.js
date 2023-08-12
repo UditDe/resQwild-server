@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		default: "user",
 	},
+
 	photo: {
 		id: {
 			type: String,
@@ -35,6 +36,22 @@ const userSchema = new mongoose.Schema({
 			required: false,
 		},
 	},
+
+	orgName: {
+		type: String,
+		maxlenght: [40, "report title must be at most 40 characters"],
+	},
+
+	orgLocation: {
+		type: String,
+	},
+
+	phoneNumber: {
+		type: Number,
+		maxlength: [10, "Phone Number should be within 10 digits"],
+		minlength: [10, "Phone Number should be within 10 digits"],
+	},
+
 	createdAt: {
 		type: Date,
 		default: Date.now,
