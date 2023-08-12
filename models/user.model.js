@@ -7,7 +7,6 @@ const crypto = require("crypto");
 const userSchema = new mongoose.Schema({
 	name: {
 		type: String,
-		required: [true, "Please provide a name"],
 		maxlength: [40, "Name should be under 40 chars"],
 	},
 	email: {
@@ -29,11 +28,11 @@ const userSchema = new mongoose.Schema({
 	photo: {
 		id: {
 			type: String,
-			required: true,
+			required: false,
 		},
 		secure_url: {
 			type: String,
-			required: true,
+			required: false,
 		},
 	},
 	createdAt: {

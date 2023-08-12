@@ -26,13 +26,15 @@ app.use(
 );
 
 //import all routes here
+const user = require("./routes/user.routes");
 
 //router middleware
+app.use("/api", user);
 
 app.get("/", (req, res) => {
 	res.status(200).json({
 		success: true,
-		message: "running",
+		message: `running on ${process.env.PORT}`,
 	});
 });
 
