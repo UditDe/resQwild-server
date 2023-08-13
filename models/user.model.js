@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema({
 		minlength: [10, "Phone Number should be within 10 digits"],
 	},
 
+	crimeAssigned: {
+		type: Array,
+	},
+
 	createdAt: {
 		type: Date,
 		default: Date.now,
